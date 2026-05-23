@@ -9,7 +9,15 @@ from model import NanoGPT
 from dataset import CharDataset
 
 # 2. Setup (Kept completely unchanged)
-data_path = os.path.join(os.path.dirname(__file__), "../data/input.txt")
+# This finds the root directory of your project automatically
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+data_path = os.path.join(root_dir, "data", "input.txt")
+
+# Check if file exists to prevent crashing and give a clean UI message
+if not os.path.exists(data_path):
+    st.error(f"⚠️ Data file not found at: {data_path}. Please check your repository structure!")
+    st.stop()
+
 dataset = CharDataset(data_path)
 encode, decode = dataset.encode, dataset.decode
 
@@ -35,7 +43,10 @@ with tab_text:
 
     @st.cache_resource
     def load_transformer_model():
-        weights_path = os.path.join(os.path.dirname(__file__), "../models/nanogpt_weights.pt")
+        # Uses the absolute root directory logic
+        root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        weights_path = os.path.join(root_dir, "models", "nanogpt_weights.pt")
+        
         if not os.path.exists(weights_path): return None
         device = 'cuda' if torch.cuda.is_available() else ('mps' if torch.backends.mps.is_available() else 'cpu')
         model = NanoGPT(vocab_size=dataset.vocab_size) 
