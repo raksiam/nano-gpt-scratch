@@ -29,11 +29,16 @@ st.write("Switch between a custom scratch-built Shakespeare model and a powerful
 # --- Sidebar Configuration Panels ---
 st.sidebar.header("⚙️ Engine Selection")
 
-# 🚨 THE NEW DROPDOWN METER
+# Dropdown choice for the model backend
 engine_mode = st.sidebar.selectbox(
     "Choose AI Brain:",
-    ["The Bard (Custom Scratch-GPT)", "General Assistant (Llama 3 via Groq)"]
+    ["The Bard (Custom Scratch-GPT)", "General Assistant (Llama 3.1 via Groq)"]
 )
+
+st.sidebar.markdown("---")
+st.sidebar.header("🔑 API Authentication")
+# 🌟 GLOBAL FIX: Defined ONCE here so it works across both engine views without duplicates!
+groq_api_key = st.sidebar.text_input("Enter Groq API Key", type="password", placeholder="gsk_...")
 
 # Context-aware settings depending on selection
 if engine_mode == "The Bard (Custom Scratch-GPT)":
@@ -42,12 +47,6 @@ if engine_mode == "The Bard (Custom Scratch-GPT)":
     max_new_tokens = st.sidebar.slider("Characters to Generate", min_value=50, max_value=1000, value=300, step=50)
     temperature = st.sidebar.slider("Creativity (Temperature)", min_value=0.1, max_value=1.5, value=1.0, step=0.1)
     seed_text = st.sidebar.text_input("Starting Prompt (Seed)", value="\n")
-else:
-    st.sidebar.markdown("---")
-    st.sidebar.header("🔑 API Authentication")
-    # Users can safely paste their free Groq key here
-    groq_api_key = st.sidebar.text_input("Enter Groq API Key", type="password", placeholder="gsk_...")
-    user_prompt = st.text_area("Ask the Assistant anything (Day-to-day questions, coding, advice, etc.):", placeholder="Why is the sky blue?")
 
 # --- Model Loading Loop for Custom GPT ---
 @st.cache_resource
@@ -78,32 +77,56 @@ if engine_mode == "The Bard (Custom Scratch-GPT)":
                 st.success("Generation Complete!")
                 st.code(decode(generated_tokens), language="text")
 
-# MODE 2: GENERAL ASSISTANT (Day-to-day Questions)
+# MODE 2: GENERAL ASSISTANT (Continuous Conversation Engine)
 else:
-    if st.button("🚀 Ask Assistant", type="primary"):
+    # 1. Initialize conversation history container in memory if it doesn't exist
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = [
+            {"role": "system", "content": "You are a helpful, brilliant daily assistant capable of holding long conversations."}
+        ]
+
+    # 2. Render all past messages to the screen to maintain the chat app look
+    for msg in st.session_state.chat_history[1:]:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+
+    # 3. Create a real-time chat input bar at the bottom of the screen
+    if user_prompt := st.chat_input("Message the Assistant..."):
+        
+        # Pulls the API key seamlessly from the global sidebar variable
         if not groq_api_key:
-            st.warning("Please enter your Groq API key in the sidebar first!")
-        elif not user_prompt.strip():
-            st.warning("Please type a question first!")
+            st.error("Please enter your Groq API key in the sidebar first!")
         else:
-            with st.spinner("Consulting Llama-3..."):
-                try:
-                    # Initialize Groq client with user's key
-                    client = Groq(api_key=groq_api_key)
-                    
-                    # Request a chat completion from a state-of-the-art model
-                    completion = client.chat.completions.create(
-                        model="llama-3.1-8b-instant",
-                        messages=[
-                            {"role": "system", "content": "You are a helpful, brilliant daily assistant."},
-                            {"role": "user", "content": user_prompt}
-                        ],
-                        temperature=0.7,
-                    )
-                    
-                    # Output response nicely formatted in markdown
-                    st.success("Response:")
-                    st.markdown(completion.choices[0].message.content)
-                    
-                except Exception as e:
-                    st.error(f"API Error: {e}")
+            # Render user input instantly to the UI
+            with st.chat_message("user"):
+                st.markdown(user_prompt)
+                
+            # Append the user's new question into persistent memory
+            st.session_state.chat_history.append({"role": "user", "content": user_prompt})
+
+            # Call the AI model with the ENTIRE message history chain
+            with st.chat_message("assistant"):
+                with st.spinner("Thinking..."):
+                    try:
+                        client = Groq(api_key=groq_api_key)
+                        
+                        # Pass the full history array instead of just a single prompt
+                        completion = client.chat.completions.create(
+                            model="llama-3.1-8b-instant",
+                            messages=st.session_state.chat_history,
+                            temperature=0.7,
+                        )
+                        
+                        response_text = completion.choices[0].message.content
+                        st.markdown(response_text)
+                        
+                        # Append the model's response back into persistent memory
+                        st.session_state.chat_history.append({"role": "assistant", "content": response_text})
+                        
+                    except Exception as e:
+                        st.error(f"API Error: {e}")
+
+    # Add a reset button to the sidebar to clear memory if the user wants a fresh start
+    if st.sidebar.button("🗑️ Clear Chat History"):
+        del st.session_state.chat_history
+        st.rerun()
