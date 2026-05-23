@@ -26,9 +26,9 @@ This project serves as an engineering portfolio that scales raw tensor logic int
         * 📄 `model.py` — Custom PyTorch implementation of Multi-Head Attention blocks
         * 📄 `train.py` — Optimization loop and gradient calculation setup
     * 📁 **assets/**
-        * 📄 `image.gif` — image creation demo
-        * 📄 `llama.gif` — cloud assistant prompt demo for llama model demo
-        * 📄 `shakespeare.gif` — Shakespeare like agent demo
+        * 📄 `flux_demo.gif` — image creation demo
+        * 📄 `llama_demo.gif` — cloud assistant prompt demo for llama model demo
+        * 📄 `bard_demo.gif` — Shakespeare like agent demo
     * 📄 `.gitignore`
     * 📄 `README.md`
 
