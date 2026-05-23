@@ -81,6 +81,22 @@ python3 src/generate.py
 
 ---
 
+### 4. Interactive Web Interface Setup
+The repository now includes an interactive Streamlit web application (`src/app.py`) to run text generation visually using your trained weights.
+
+#### Key Updates Implemented:
+* **Dynamic Vocabulary Loading:** Instantiates the `CharDataset` first to dynamically pass `vocab_size` directly into the `NanoGPT` model constructor, eliminating hardcoded array dimension mismatch errors.
+* **Cross-Hardware Deployment:** Uses PyTorch's `map_location` to safely deserialize model checkpoints across differing development environments (CUDA, MPS, or CPU).
+* **Temperature-Controlled Inference:** Connects an interactive slider directly to the generation pipeline to scale prediction logits, letting you adjust text randomness on the fly.
+
+To launch the local web server, run:
+```bash
+streamlit run src/app.py
+
+```
+
+---
+
 ## 📊 Expected Output & Evaluation
 
 * **Baseline Loss:** ~4.17 - 4.60 (Equivalent to uniform random guessing across the 65-character vocabulary layout).
@@ -96,22 +112,5 @@ And none in so helpar of ye heard?
 Orife, good woodst Geord were the chook you the wort
 
 ```
+---
 
-"""
-
-with open("README.md", "w", encoding="utf-8") as f:
-f.write(readme_content)
-print("File README.md created successfully.")
-
-```
-Your Markdown file is ready
-[file-tag: code-generated-file-0-1779544647567052210]
-
-The `README.md` file has been generated with all your requested information. It includes:
-1. **Project Overview** explaining what the character-level language model is.
-2. **Project Repository Structure** detailing where files like `src/train.py`, `src/model.py`, and `data/input.txt` live.
-3. **Summary of Steps Followed** outlining your journey through setup, modeling, training, and setting up your GitHub Personal Access Token/credential helper settings.
-4. **How to Run the Project** with explicit step-by-step terminal commands for virtual environments, dependency installation, training execution, and generation tracking.
-5. **Expected Output & Metrics** evaluating baseline random entropy versus optimization results with a final sample text generation snippet.
-
-```
