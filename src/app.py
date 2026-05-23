@@ -82,22 +82,19 @@ with tab_image:
 st.markdown("<style>.stChatMessageContainer, .stBlock { padding-bottom: 70px; }</style>", unsafe_allow_html=True)
 
 # =========================================================================
-# 🚀 GLOBAL BOTTOM FOOTER INPUT (Universal & Stays Fixed At Bottom)
+# 🚀 GLOBAL BOTTOM FOOTER INPUT (Reverted to Router URL)
 # =========================================================================
 universal_placeholder = "Type here..."
 
 if user_prompt := st.chat_input(universal_placeholder):
     
-    # Check if user is currently looking at Image Studio or trying to run an image generation
-    if not groq_api_key and hf_token:
-        # Route to image generation automatically if they've only authenticated Hugging Face
+    # Check if user is trying to run an image generation based on prompt/tokens
+    image_keywords = ["draw", "image", "generate", "paint", "photo", "picture", "flux", "art", "cinematic", "shot", "rendering", "style"]
+    
+    if (hf_token and not groq_api_key) or any(word in user_prompt.lower() for word in image_keywords):
         is_image_job = True
-    elif groq_api_key and not hf_token:
-        is_image_job = False
     else:
-        # If both or neither keys are provided, we check keywords inside the prompt 
-        image_keywords = ["draw", "image", "generate", "paint", "photo", "picture", "flux", "art"]
-        is_image_job = any(word in user_prompt.lower() for word in image_keywords)
+        is_image_job = False
 
     # --- EXECUTION ROUTING ---
     if is_image_job:
@@ -105,16 +102,22 @@ if user_prompt := st.chat_input(universal_placeholder):
             if not hf_token: 
                 st.error("Please enter your Hugging Face Token in the sidebar to generate images!")
             else:
-                with st.spinner("Generating image via FLUX..."):
+                with st.spinner("Generating image via FLUX.1..."):
                     try:
+                        # REVERTED: Restored your original working cloud-router path
                         API_URL = "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell"
                         headers = {"Authorization": f"Bearer {hf_token.strip()}"}
+                        
                         response = requests.post(API_URL, headers=headers, json={"inputs": user_prompt}, timeout=60)
+                        
                         if response.status_code == 200:
                             st.image(response.content, caption=f"Prompt: {user_prompt}")
                             st.download_button("📥 Download Render", response.content, "image.png")
+                        elif response.status_code == 503:
+                            st.warning("Hugging Face server is warming up the FLUX engine. Please wait 15 seconds and press enter again!")
                         else: 
                             st.error(f"Hugging Face API Error ({response.status_code}): {response.text}")
+                            
                     except Exception as e: 
                         st.error(f"Error handling image workflow: {e}")
     else:
