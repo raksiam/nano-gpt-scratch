@@ -11,17 +11,22 @@ This project builds a generative language model trained on the text of Shakespea
 ## 📂 Project Repository Structure
 
 nano-gpt-scratch/
-├── data/
-│   └── input.txt             # Raw text corpus (Tiny Shakespeare)
-├── models/
-│   └── nanogpt_weights.pt    # Saved optimized model weights (.pt binary)
-├── src/
-│   ├── dataset.py            # Data loading, tokenization, and batching logic
-│   ├── model.py              # Custom Transformer architecture and layers
-│   ├── train.py              # Training loop optimization routine
-│   └── generate.py           # Text generation inference runner
-├── .gitignore                # Excludes runtime caches and model binaries
-└── README.md                 # Project documentation
+
+  ├── data/
+  │   └── input.txt
+
+  ├── models/
+  │   └── nanogpt_weights.pt
+
+  ├── src/
+  │   ├── dataset.py
+  │   ├── generate.py
+  │   ├── model.py
+  │   └── train.py
+
+  ├── .gitignore
+  
+  └── README.md
 
 ---
 
