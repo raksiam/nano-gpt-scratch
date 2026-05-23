@@ -1,7 +1,4 @@
-```python
-import os
-
-readme_content = """# NanoGPT: Character-Level Shakespeare Language Model
+# NanoGPT: Character-Level Shakespeare Language Model
 
 An end-to-end character-level Generative Transformer model built completely from scratch in PyTorch, inspired by the NanoGPT architecture. This project implements a fully functional data processing pipeline, a custom causal self-attention mechanism, an optimization training loop, and an interactive text generation inference script.
 
@@ -12,14 +9,6 @@ This project builds a generative language model trained on the text of Shakespea
 ---
 
 ## 📂 Project Repository Structure
-
-
-```
-
-```text
-File README.md created successfully.
-
-```text
 .
 ├── data/
 │   └── input.txt             # Raw text corpus (Tiny Shakespeare)
@@ -32,8 +21,6 @@ File README.md created successfully.
 │   └── generate.py           # Text generation inference runner
 ├── .gitignore                # Excludes caches and model binaries
 └── README.md                 # Project documentation
-
-```
 
 ---
 
