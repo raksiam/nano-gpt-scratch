@@ -1,13 +1,15 @@
-# 🤖 Hybrid AI Engine: Custom NanoGPT & General Assistant
+```markdown
+# 🤖 Multimodal Multitask AI Suite: Custom Transformer & Creative Studios
 
-An end-to-end multi-engine AI application built in PyTorch and Streamlit. This project showcases two distinct layers of AI development: a character-level Generative Transformer model built completely from scratch, paired side-by-side with a modern open-source Large Language Model (Llama 3.1) via the Groq cloud API to handle everyday natural language questions.
+An end-to-end multimodal AI application built entirely in PyTorch and Streamlit. This comprehensive suite bridges the gap between foundational architectural deep learning and production-ready serverless cloud APIs. The system handles custom character-level text synthesis entirely on local consumer hardware, alongside dedicated pipelines for continuous assistant workflows and cloud-accelerated visual media generation.
 
 ## 📝 Project Overview
 
-This project serves as a comprehensive portfolio bridge between foundational deep learning architecture and production-ready cloud LLM integration. 
+This project serves as an engineering portfolio that scales raw tensor logic into a modern, production-grade application across three specialized focus areas:
 
-1. **The Bard Engine (Custom Scratch-GPT):** A generative language model trained on the text of Shakespeare's plays. Reading, processing, and generating text character-by-character, it demonstrates how data pipelines feed into a causal self-attention system, how optimization loops minimize structural entropy, and how multinomial sampling processes generate completely original stylized text.
-2. **The Assistant Engine (Production API Integration):** A state-of-the-art conversational layout that taps into the high-speed Groq cloud architecture to solve general tasks, coding, and day-to-day text execution workflows.
+1. **The Bard Engine (Custom Scratch-GPT):** A generative language model trained on the text of Shakespeare's plays. Reading, processing, and generating text character-by-character, it demonstrates how raw token data pipelines feed into a causal self-attention system, how optimization loops minimize structural entropy, and how multinomial sampling processes generate completely original stylized text.
+2. **The Assistant Engine (Continuous Conversation):** A state-of-the-art chat platform tapping into high-speed Groq cloud infrastructure. By wrapping the stateless API within an stateful memory buffer, it retains situational context for complex, multi-turn technical chats.
+3. **The Image Studio (Multimodal Synthesis):** A creative studio that routes prompts to high-compute serverless cloud clusters hosting the state-of-the-art 12-Billion parameter `FLUX.1-schnell` model, rendering and exporting high-resolution PNG matrices.
 
 ---
 
@@ -15,15 +17,15 @@ This project serves as a comprehensive portfolio bridge between foundational dee
 
 * **nano-gpt-scratch/**
     * 📁 **data/**
-        * 📄 `input.txt`
+        * 📄 `input.txt` — Raw training corpus (The Complete Works of Shakespeare)
     * 📁 **models/**
-        * 📄 `nanogpt_weights.pt`
+        * 📄 `nanogpt_weights.pt` — Compiled local model matrix checkpoints
     * 📁 **src/**
-        * 📄 `app.py` — Hybrid web application dashboard script
-        * 📄 `dataset.py`
-        * 📄 `generate.py`
-        * 📄 `model.py`
-        * 📄 `train.py`
+        * 📄 `app.py` — Main Streamlit Multimodal dashboard and orchestration interface
+        * 📄 `dataset.py` — Custom text tokenization engine and batch array builder
+        * 📄 `generate.py` — Command Line Interface inference routine
+        * 📄 `model.py` — Custom PyTorch implementation of Multi-Head Attention blocks
+        * 📄 `train.py` — Optimization loop and gradient calculation setup
     * 📄 `.gitignore`
     * 📄 `README.md`
 
@@ -38,17 +40,18 @@ During development, the project advanced through the following engineering miles
 3. **Model Construction (model.py):** Wrote custom PyTorch layers implementing multi-head causal self-attention, masked lower-triangular tracking tables (tril), feed-forward expansion blocks, layer normalization, and residual skip-connections.
 4. **Optimization Loop Integration (train.py):** Built an automated routine using the AdamW optimizer, added device fallback matching (CUDA/MPS/CPU), evaluated initial untrained entropy thresholds, and targeted validation monitoring over 1,500 steps.
 5. **Inference Engine Deployment (generate.py):** Programmed a creative generation pipeline using a softmax probability distribution and random multinomial index sampling to yield original character strings.
-6. **Cloud Infrastructure Security:** Attached the local tree to a GitHub remote destination using an authenticated Personal Access Token (PAT) paired with global OS credential keychain helpers for automated future pushes.
+6. **Stateful Conversation Memory Architecture:** Built an abstract state tracking system inside the dashboard to preserve text logs across multi-turn prompts, converting a stateless API into an interactive chat app.
+7. **Multimodal Router Integration:** Designed a backend requests framework that handles token isolation and error timeouts, directly querying live serverless inference endpoints to render binary image arrays instantly.
 
 ---
 
 ## 🚀 How to Run the Project
 
-Follow these exact steps from your terminal to install dependencies, train the model, and generate original text.
+Follow these exact steps from your terminal to install dependencies, train the model, and launch the web interface.
 
 ### 1. Environment Activation & Dependency Installation
 
-Navigate to your project root, create a clean virtual environment container, and install PyTorch and the required web/API SDK libraries:
+Navigate to your project root, create a clean virtual environment container, and install the library requirements:
 
 ```bash
 # Navigate to project folder
@@ -58,8 +61,8 @@ cd nano-gpt-scratch
 python3 -m venv venv
 source venv/bin/activate  # On Windows, run: venv\Scripts\activate
 
-# Install machine learning, UI, and external AI SDK dependencies
-pip install torch streamlit groq
+# Install machine learning, UI networking, and external AI SDK dependencies
+pip install torch streamlit groq requests
 
 ```
 
@@ -85,15 +88,16 @@ python3 src/generate.py
 
 ---
 
-### 4. Interactive Hybrid Web Dashboard UI
+### 4. Interactive Multimodal Dashboard Dashboard
 
-The application features an interactive Streamlit graphical interface (`src/app.py`) that serves as a toggleable dual-engine platform.
+The application features a fully responsive, tabbed interface (`src/app.py`) to easily swap between local code blocks and cloud generation suites.
 
-#### Key Framework Implementations:
+#### Key UI & Pipeline Implementations:
 
 * **Dynamic Vocabulary Loading:** Instantiates the custom `CharDataset` pipeline first to dynamically feed `vocab_size` directly into the `NanoGPT` model constructor, eliminating hardcoded array dimension mismatch errors.
 * **Cross-Hardware Weight Deserialization:** Utilizes PyTorch's `map_location` parameter to safely stream learned checkpoint matrices smoothly across differing backend target environments (CUDA, MPS, or CPU).
-* **Multi-Engine Intelligence System:** Adds a runtime router allowing users to switch between the local custom Transformer (with adjustable temperature randomness scaling) and a fast cloud connection executing the `llama-3.1-8b-instant` assistant layer.
+* **Global Authentication Management:** Consolidates access keys to the sidebar header, instantiating credentials single-turn to eliminate duplicate widget element key errors across script re-runs.
+* **Serverless Image Studio:** Integrates secure HTTP post request layers to communicate with the active Hugging Face Serverless Router (`router.huggingface.co`), parsing raw response bytes into downloadable, high-resolution visual formats on the fly.
 
 To launch the local web server dashboard, execute:
 
@@ -120,11 +124,14 @@ Orife, good woodst Geord were the chook you the wort
 
 ```
 
-### Sample Assistant Output:
+### Sample Conversational Assistant Output:
 
 ```text
-User Question: "Give me a simple explanation of Python Decorators"
-Response: "A decorator in Python is a design pattern that allows you to modify or extend the behavior of a function or method without permanently altering its source code. Think of it like wrapping a gift—the decorator is the wrapping paper that changes the outside appearance/behavior, while the gift inside remains identical!"
+User: Hi, I'm developing an AI suite! Remember my name, okay?
+Assistant: That sounds like an awesome project! I've noted down your name. How can I help you build it?
+
+User: What is my name and what am I building?
+Assistant: Your name is John, and you are building a Multimodal AI Suite that includes a custom scratch-built Shakespeare Transformer!
 
 ```
 
