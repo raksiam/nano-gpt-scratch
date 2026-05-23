@@ -131,31 +131,27 @@ class NanoGPT(nn.Module):
 
         return logits, loss
 
-    def generate(self, idx, max_new_tokens: int):
-        """
-        Takes an input matrix of token coordinates 'idx' (shape: B, T) 
-        and generates 'max_new_tokens' characters of fresh text.
-        """
+    def generate(self, idx, max_new_tokens, temperature=1.0):
+        # idx is (B, T) array of indices in the current context
         for _ in range(max_new_tokens):
-            # Crop the current sequence context window if it exceeds our block_size limit
-            # Since position embeddings only support dimensions up to block_size
-            idx_cond = idx[:, -self.block_size:]
-            
-            # 1. Run a forward pass to get current prediction scores
-            logits, _ = self.forward(idx_cond)
-            
-            # 2. Focus strictly on the very last token position in the sequence array
-            logits = logits[:, -1, :] # Becomes shape: (B, C)
-            
-            # 3. Apply Softmax to convert raw scores into a valid probability distribution
-            probs = F.softmax(logits, dim=-1) # Shape: (B, C)
-            
-            # 4. Sample a single character index randomly based on those distribution weights
-            idx_next = torch.multinomial(probs, num_samples=1) # Shape: (B, 1)
-            
-            # 5. Append the newly generated token index to the running sequence matrix
-            idx = torch.cat((idx, idx_next), dim=1) # Becomes shape: (B, T+1)
-            
+            # crop idx to the last block_size tokens if necessary
+            idx_cond = idx[:, -self.block_size:] if hasattr(self, 'block_size') else idx
+        
+            # get the predictions
+            logits, loss = self(idx_cond)
+        
+            # pluck the logits for the final time step and scale them by temperature
+            logits = logits[:, -1, :] / temperature
+        
+            # apply softmax to get probabilities
+            probs = F.softmax(logits, dim=-1) # (B, C)
+        
+            # sample from the distribution
+            idx_next = torch.multinomial(probs, num_samples=1) # (B, 1)
+        
+            # append sampled index to the running sequence
+            idx = torch.cat((idx, idx_next), dim=1) # (B, T+1)
+        
         return idx
 
 # if __name__ == "__main__":
