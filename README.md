@@ -1,4 +1,3 @@
-```markdown
 # 🤖 Multimodal Multitask AI Suite: Custom Transformer & Creative Studios
 
 An end-to-end multimodal AI application built entirely in PyTorch and Streamlit. This comprehensive suite bridges the gap between foundational architectural deep learning and production-ready serverless cloud APIs. The system handles custom character-level text synthesis entirely on local consumer hardware, alongside dedicated pipelines for continuous assistant workflows and cloud-accelerated visual media generation.
@@ -132,7 +131,5 @@ Assistant: That sounds like an awesome project! I've noted down your name. How c
 
 User: What is my name and what am I building?
 Assistant: Your name is John, and you are building a Multimodal AI Suite that includes a custom scratch-built Shakespeare Transformer!
-
-```
 
 ```
