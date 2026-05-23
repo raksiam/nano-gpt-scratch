@@ -43,11 +43,13 @@ with tab_text:
 
     @st.cache_resource
     def load_transformer_model():
-        # Uses the absolute root directory logic
+        # Points directly to the root of your GitHub repository structure
         root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
         weights_path = os.path.join(root_dir, "models", "nanogpt_weights.pt")
         
-        if not os.path.exists(weights_path): return None
+        if not os.path.exists(weights_path): 
+            return None
+            
         device = 'cuda' if torch.cuda.is_available() else ('mps' if torch.backends.mps.is_available() else 'cpu')
         model = NanoGPT(vocab_size=dataset.vocab_size) 
         checkpoint = torch.load(weights_path, map_location=torch.device(device))
