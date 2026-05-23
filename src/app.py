@@ -8,12 +8,10 @@ from groq import Groq
 from model import NanoGPT
 from dataset import CharDataset
 
-# 2. Setup (Kept completely unchanged)
-# This finds the root directory of your project automatically
+# 2. Setup (Absolute repository paths for cloud deployment)
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 data_path = os.path.join(root_dir, "data", "input.txt")
 
-# Check if file exists to prevent crashing and give a clean UI message
 if not os.path.exists(data_path):
     st.error(f"⚠️ Data file not found at: {data_path}. Please check your repository structure!")
     st.stop()
@@ -23,16 +21,20 @@ encode, decode = dataset.encode, dataset.decode
 
 st.set_page_config(page_title="Multimodal AI Suite", page_icon="🚀", layout="centered")
 
+# Track active tab via session state to correctly route the bottom global input box
+if "active_tab" not in st.session_state:
+    st.session_state.active_tab = "📝 Text Engine"
+
 # --- Sidebar ---
 st.sidebar.header("🔑 Authentication")
 groq_api_key = st.sidebar.text_input("Groq API Key", type="password")
 hf_token = st.sidebar.text_input("Hugging Face Token", type="password")
 
-# Only 2 tabs now
-tab_text, tab_image = st.tabs(["📝 Text", "🎨 Image Studio"])
+# Render layout tabs
+tab_text, tab_image = st.tabs(["📝 Text Engine", "🎨 Image Studio"])
 
 # =========================================================================
-# TAB 1: TEXT GENERATION
+# TAB 1: TEXT ENGINE
 # =========================================================================
 with tab_text:
     st.subheader("Select Text Generation Engine")
@@ -43,13 +45,8 @@ with tab_text:
 
     @st.cache_resource
     def load_transformer_model():
-        # Points directly to the root of your GitHub repository structure
-        root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
         weights_path = os.path.join(root_dir, "models", "nanogpt_weights.pt")
-        
-        if not os.path.exists(weights_path): 
-            return None
-            
+        if not os.path.exists(weights_path): return None
         device = 'cuda' if torch.cuda.is_available() else ('mps' if torch.backends.mps.is_available() else 'cpu')
         model = NanoGPT(vocab_size=dataset.vocab_size) 
         checkpoint = torch.load(weights_path, map_location=torch.device(device))
@@ -63,71 +60,97 @@ with tab_text:
     if engine_mode == "The Bard (Custom Scratch-GPT)":
         max_new_tokens = st.slider("Characters to Generate", 50, 1000, 300, 50)
         temperature = st.slider("Creativity", 0.1, 1.5, 1.0, 0.1)
-        seed_text = st.text_input("Starting Prompt (Seed)", value="\n")
-        
-        if st.button("✨ Compose Shakespearean Script", type="primary"):
-            if model_data is not None:
-                model, device = model_data
-                with st.spinner("Writing..."):
-                    context_idx = torch.tensor([encode(seed_text)], dtype=torch.long, device=device)
-                    generated_tokens = model.generate(context_idx, max_new_tokens=max_new_tokens, temperature=temperature)[0].tolist()
-                    st.code(decode(generated_tokens), language="text")
-            else:
-                st.error("Weights file not found at models/nanogpt_weights.pt")
-
+        bard_output_area = st.container()
     else:
-        # 1. Initialize chat history state
+        chat_output_area = st.container()
         if "chat_history" not in st.session_state:
             st.session_state.chat_history = [{"role": "system", "content": "You are a helpful assistant."}]
 
-        # 2. Render previous messages inside the main container view area
-        for msg in st.session_state.chat_history[1:]:
-            with st.chat_message(msg["role"]): 
-                st.markdown(msg["content"])
-
-        # 3. Call st.chat_input OUTSIDE of any heavy layout columns.
-        # This forces the frontend rendering framework to anchor it to the bottom boundary.
-        if user_prompt := st.chat_input("Message the Assistant..."):
-            if not groq_api_key:
-                st.error("Please enter your Groq API key in the sidebar first!")
-            else:
-                # Append user prompt immediately
-                with st.chat_message("user"): 
-                    st.markdown(user_prompt)
-                st.session_state.chat_history.append({"role": "user", "content": user_prompt})
-
-                # Process assistant response pipeline
-                with st.chat_message("assistant"):
-                    with st.spinner("Thinking..."):
-                        try:
-                            client = Groq(api_key=groq_api_key)
-                            completion = client.chat.completions.create(
-                                model="llama-3.1-8b-instant",
-                                messages=st.session_state.chat_history,
-                                temperature=0.7,
-                            )
-                            response_text = completion.choices[0].message.content
-                            st.markdown(response_text)
-                            st.session_state.chat_history.append({"role": "assistant", "content": response_text})
-                        except Exception as e:
-                            st.error(f"API Error: {e}")
+        with chat_output_area:
+            for msg in st.session_state.chat_history[1:]:
+                with st.chat_message(msg["role"]): 
+                    st.markdown(msg["content"])
 
 # =========================================================================
 # TAB 2: IMAGE STUDIO
 # =========================================================================
 with tab_image:
-    st.subheader("🎨 AI Image Generator")
-    image_prompt = st.text_area("Describe your image:")
-    if st.button("🚀 Render Image"):
-        if not hf_token: st.error("Need HF Token!")
-        else:
-            with st.spinner("Generating..."):
-                try:
-                    API_URL = "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell"
-                    headers = {"Authorization": f"Bearer {hf_token.strip()}"}
-                    response = requests.post(API_URL, headers=headers, json={"inputs": image_prompt}, timeout=60)
-                    if response.status_code == 200:
-                        st.image(response.content)
-                        st.download_button("📥 Download", response.content, "image.png")
-                    else: st.error(f"Error {response.status_code}: {response.text}")
-                except Exception as e: st.error(f"Error: {e}")
+    st.subheader("🎨 AI Image Studio")
+    image_output_area = st.container()
+
+# CSS tweak to add bottom padding to prevent content from getting cut off behind the sticky input
+st.markdown("<style>.stChatMessageContainer, .stBlock { padding-bottom: 70px; }</style>", unsafe_allow_html=True)
+
+# =========================================================================
+# 🚀 GLOBAL BOTTOM FOOTER INPUT (Universal & Stays Fixed At Bottom)
+# =========================================================================
+universal_placeholder = "Type here..."
+
+if user_prompt := st.chat_input(universal_placeholder):
+    
+    # Check if user is currently looking at Image Studio or trying to run an image generation
+    if not groq_api_key and hf_token:
+        # Route to image generation automatically if they've only authenticated Hugging Face
+        is_image_job = True
+    elif groq_api_key and not hf_token:
+        is_image_job = False
+    else:
+        # If both or neither keys are provided, we check keywords inside the prompt 
+        image_keywords = ["draw", "image", "generate", "paint", "photo", "picture", "flux", "art"]
+        is_image_job = any(word in user_prompt.lower() for word in image_keywords)
+
+    # --- EXECUTION ROUTING ---
+    if is_image_job:
+        with image_output_area:
+            if not hf_token: 
+                st.error("Please enter your Hugging Face Token in the sidebar to generate images!")
+            else:
+                with st.spinner("Generating image via FLUX..."):
+                    try:
+                        API_URL = "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell"
+                        headers = {"Authorization": f"Bearer {hf_token.strip()}"}
+                        response = requests.post(API_URL, headers=headers, json={"inputs": user_prompt}, timeout=60)
+                        if response.status_code == 200:
+                            st.image(response.content, caption=f"Prompt: {user_prompt}")
+                            st.download_button("📥 Download Render", response.content, "image.png")
+                        else: 
+                            st.error(f"Hugging Face API Error ({response.status_code}): {response.text}")
+                    except Exception as e: 
+                        st.error(f"Error handling image workflow: {e}")
+    else:
+        # Route to Text Engine
+        if engine_mode == "The Bard (Custom Scratch-GPT)":
+            with bard_output_area:
+                if model_data is not None:
+                    model, device = model_data
+                    with st.spinner("Composing Shakespearean script..."):
+                        context_idx = torch.tensor([encode(user_prompt)], dtype=torch.long, device=device)
+                        generated_tokens = model.generate(context_idx, max_new_tokens=max_new_tokens, temperature=temperature)[0].tolist()
+                        st.text_area("The Bard Says:", value=decode(generated_tokens), height=300)
+                else:
+                    st.error("Weights file not found at models/nanogpt_weights.pt")
+        
+        elif engine_mode == "General Assistant (Llama 3.1 via Groq)":
+            if not groq_api_key:
+                with chat_output_area: 
+                    st.error("Please enter your Groq API key in the sidebar first!")
+            else:
+                st.session_state.chat_history.append({"role": "user", "content": user_prompt})
+                with chat_output_area:
+                    with st.chat_message("user"): 
+                        st.markdown(user_prompt)
+                    
+                    with st.chat_message("assistant"):
+                        with st.spinner("Thinking..."):
+                            try:
+                                client = Groq(api_key=groq_api_key)
+                                completion = client.chat.completions.create(
+                                    model="llama-3.1-8b-instant",
+                                    messages=st.session_state.chat_history,
+                                    temperature=0.7,
+                                )
+                                response_text = completion.choices[0].message.content
+                                st.markdown(response_text)
+                                st.session_state.chat_history.append({"role": "assistant", "content": response_text})
+                            except Exception as e:
+                                st.error(f"API Error: {e}")
