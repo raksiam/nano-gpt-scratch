@@ -8,21 +8,20 @@ from groq import Groq
 from model import NanoGPT
 from dataset import CharDataset
 
-# 2. Global Context & Vocabulary Pipeline Setup
+# 2. Setup (Kept completely unchanged)
 data_path = os.path.join(os.path.dirname(__file__), "../data/input.txt")
 dataset = CharDataset(data_path)
-encode = dataset.encode
-decode = dataset.decode
+encode, decode = dataset.encode, dataset.decode
 
 st.set_page_config(page_title="Multimodal AI Suite", page_icon="🚀", layout="centered")
 
-# --- Global Sidebar (Shared Authentication Panel) ---
-st.sidebar.header("🔑 Authentication & Control")
-groq_api_key = st.sidebar.text_input("Enter Groq API Key (For Chat)", type="password", placeholder="gsk_...")
-hf_token = st.sidebar.text_input("Enter Hugging Face Token (For Images)", type="password", placeholder="hf_...")
+# --- Sidebar ---
+st.sidebar.header("🔑 Authentication")
+groq_api_key = st.sidebar.text_input("Groq API Key", type="password")
+hf_token = st.sidebar.text_input("Hugging Face Token", type="password")
 
-# --- Main Interface Tabs ---
-tab_text, tab_image = st.tabs(["📝 Text Generation", "🎨 Image Studio"])
+# Only 2 tabs now
+tab_text, tab_image = st.tabs(["📝 Text", "🎨 Image Studio"])
 
 # =========================================================================
 # TAB 1: TEXT GENERATION
@@ -93,49 +92,21 @@ with tab_text:
                             st.error(f"API Error: {e}")
 
 # =========================================================================
-# TAB 2: IMAGE STUDIO (Flux.1 Text-to-Image Generation)
+# TAB 2: IMAGE STUDIO
 # =========================================================================
 with tab_image:
-    st.subheader("🎨 Free AI Image Generator")
-    st.write("Generate incredible, photorealistic pictures instantly using the high-end Flux.1-schnell model.")
-    
-    image_prompt = st.text_area(
-        "Describe your image in detail:", 
-        placeholder="An astronaut riding a horse on Mars, cinematic lighting, 8k resolution, highly detailed"
-    )
-    
-    if st.button("🚀 Render Image", type="primary"):
-        if not hf_token:
-            st.error("Please paste your Hugging Face Access Token in the sidebar first!")
-        elif not image_prompt.strip():
-            st.warning("Please enter a detailed visual description first!")
+    st.subheader("🎨 AI Image Generator")
+    image_prompt = st.text_area("Describe your image:")
+    if st.button("🚀 Render Image"):
+        if not hf_token: st.error("Need HF Token!")
         else:
-            with st.spinner("Generating your image via cloud GPUs (takes about 4-8 seconds)..."):
+            with st.spinner("Generating..."):
                 try:
-                    # Pointing to the live Hugging Face serverless router path
                     API_URL = "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell"
-                    
-                    # 🌟 FIX: Ensuring the Token is cleanly parsed and stripped of any trailing spaces/newlines
-                    clean_token = str(hf_token).strip()
-                    headers = {"Authorization": f"Bearer {clean_token}"}
-                    
-                    # Post request with a connection timeout safety check
-                    response = requests.post(API_URL, headers=headers, json={"inputs": image_prompt}, timeout=30)
-                    
+                    headers = {"Authorization": f"Bearer {hf_token.strip()}"}
+                    response = requests.post(API_URL, headers=headers, json={"inputs": image_prompt}, timeout=60)
                     if response.status_code == 200:
-                        st.image(response.content, caption="Generated Masterpiece", use_container_width=True)
-                        st.success("Canvas complete!")
-                        
-                        # Provide a download button for your generated artwork
-                        st.download_button(
-                            label="📥 Download High-Res Image",
-                            data=response.content,
-                            file_name="ai_masterpiece.png",
-                            mime="image/png"
-                        )
-                    else:
-                        st.error(f"API Error ({response.status_code}): {response.text}")
-                        st.info("Tip: If the model is initializing, wait a few seconds and try clicking 'Render Image' again!")
-                        
-                except Exception as e:
-                    st.error(f"Execution Error: {e}")
+                        st.image(response.content)
+                        st.download_button("📥 Download", response.content, "image.png")
+                    else: st.error(f"Error {response.status_code}: {response.text}")
+                except Exception as e: st.error(f"Error: {e}")
