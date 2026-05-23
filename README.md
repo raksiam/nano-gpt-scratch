@@ -25,6 +25,10 @@ This project serves as an engineering portfolio that scales raw tensor logic int
         * 📄 `generate.py` — Command Line Interface inference routine
         * 📄 `model.py` — Custom PyTorch implementation of Multi-Head Attention blocks
         * 📄 `train.py` — Optimization loop and gradient calculation setup
+    * 📁 **assets/**
+        * 📄 `image.gif` — image creation demo
+        * 📄 `llama.gif` — cloud assistant prompt demo for llama model demo
+        * 📄 `shakespeare.gif` — Shakespeare like agent demo
     * 📄 `.gitignore`
     * 📄 `README.md`
 
@@ -41,6 +45,17 @@ During development, the project advanced through the following engineering miles
 5. **Inference Engine Deployment (generate.py):** Programmed a creative generation pipeline using a softmax probability distribution and random multinomial index sampling to yield original character strings.
 6. **Stateful Conversation Memory Architecture:** Built an abstract state tracking system inside the dashboard to preserve text logs across multi-turn prompts, converting a stateless API into an interactive chat app.
 7. **Multimodal Router Integration:** Designed a backend requests framework that handles token isolation and error timeouts, directly querying live serverless inference endpoints to render binary image arrays instantly.
+
+---
+
+### 📝 The Bard Engine (Custom NanoGPT)
+![The Bard Demo](./assets/bard_demo.gif)
+
+### ⚡ Cloud Assistant (Llama 3.1)
+![Llama Demo](./assets/llama_demo.gif)
+
+### 🎨 Image Studio (FLUX.1)
+![FLUX Demo](./assets/flux_demo.gif)
 
 ---
 
