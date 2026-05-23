@@ -76,19 +76,27 @@ with tab_text:
                 st.error("Weights file not found at models/nanogpt_weights.pt")
 
     else:
+        # 1. Initialize chat history state
         if "chat_history" not in st.session_state:
             st.session_state.chat_history = [{"role": "system", "content": "You are a helpful assistant."}]
 
+        # 2. Render previous messages inside the main container view area
         for msg in st.session_state.chat_history[1:]:
-            with st.chat_message(msg["role"]): st.markdown(msg["content"])
+            with st.chat_message(msg["role"]): 
+                st.markdown(msg["content"])
 
+        # 3. Call st.chat_input OUTSIDE of any heavy layout columns.
+        # This forces the frontend rendering framework to anchor it to the bottom boundary.
         if user_prompt := st.chat_input("Message the Assistant..."):
             if not groq_api_key:
                 st.error("Please enter your Groq API key in the sidebar first!")
             else:
-                with st.chat_message("user"): st.markdown(user_prompt)
+                # Append user prompt immediately
+                with st.chat_message("user"): 
+                    st.markdown(user_prompt)
                 st.session_state.chat_history.append({"role": "user", "content": user_prompt})
 
+                # Process assistant response pipeline
                 with st.chat_message("assistant"):
                     with st.spinner("Thinking..."):
                         try:
