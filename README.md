@@ -1,10 +1,13 @@
-# NanoGPT: Character-Level Shakespeare Language Model
+# 🤖 Hybrid AI Engine: Custom NanoGPT & General Assistant
 
-An end-to-end character-level Generative Transformer model built completely from scratch in PyTorch, inspired by the NanoGPT architecture. This project implements a fully functional data processing pipeline, a custom causal self-attention mechanism, an optimization training loop, and an interactive text generation inference script.
+An end-to-end multi-engine AI application built in PyTorch and Streamlit. This project showcases two distinct layers of AI development: a character-level Generative Transformer model built completely from scratch, paired side-by-side with a modern open-source Large Language Model (Llama 3.1) via the Groq cloud API to handle everyday natural language questions.
 
 ## 📝 Project Overview
 
-This project builds a generative language model trained on the text of Shakespeare's plays. Instead of working with whole words, the model reads, processes, and generates text character-by-character. By building the network blocks from scratch, the project demonstrates how data pipelines feed into a causal self-attention system, how optimization loops minimize structural entropy, and how multinomial sampling processes generate completely original text mimicking a target style.
+This project serves as a comprehensive portfolio bridge between foundational deep learning architecture and production-ready cloud LLM integration. 
+
+1. **The Bard Engine (Custom Scratch-GPT):** A generative language model trained on the text of Shakespeare's plays. Reading, processing, and generating text character-by-character, it demonstrates how data pipelines feed into a causal self-attention system, how optimization loops minimize structural entropy, and how multinomial sampling processes generate completely original stylized text.
+2. **The Assistant Engine (Production API Integration):** A state-of-the-art conversational layout that taps into the high-speed Groq cloud architecture to solve general tasks, coding, and day-to-day text execution workflows.
 
 ---
 
@@ -16,6 +19,7 @@ This project builds a generative language model trained on the text of Shakespea
     * 📁 **models/**
         * 📄 `nanogpt_weights.pt`
     * 📁 **src/**
+        * 📄 `app.py` — Hybrid web application dashboard script
         * 📄 `dataset.py`
         * 📄 `generate.py`
         * 📄 `model.py`
@@ -40,11 +44,11 @@ During development, the project advanced through the following engineering miles
 
 ## 🚀 How to Run the Project
 
-Follow these exact steps from your terminal to install dependencies, train the model, and generate original Shakespearean text.
+Follow these exact steps from your terminal to install dependencies, train the model, and generate original text.
 
 ### 1. Environment Activation & Dependency Installation
 
-Navigate to your project root, create a clean virtual environment container, and install PyTorch:
+Navigate to your project root, create a clean virtual environment container, and install PyTorch and the required web/API SDK libraries:
 
 ```bash
 # Navigate to project folder
@@ -52,16 +56,16 @@ cd nano-gpt-scratch
 
 # Initialize and activate a virtual environment
 python3 -m venv venv
-source venv/bin/activate  # On Windows, run: venv\\Scripts\\activate
+source venv/bin/activate  # On Windows, run: venv\Scripts\activate
 
-# Install the machine learning library dependency
-pip install torch
+# Install machine learning, UI, and external AI SDK dependencies
+pip install torch streamlit groq
 
 ```
 
 ### 2. Run the Training Optimization Loop
 
-To train the model from scratch on the text corpus and export the learned weights file, run:
+To train the custom model from scratch on the Shakespeare text corpus and export the learned weights file, run:
 
 ```bash
 python3 src/train.py
@@ -70,9 +74,9 @@ python3 src/train.py
 
 *The terminal will output current training and validation loss calculations every 200 cycles as the network learns patterns.*
 
-### 3. Generate Original Text (Inference)
+### 3. Generate Original Text (CLI Inference)
 
-Once training is complete and `models/nanogpt_weights.pt` is generated, run the text generation utility to watch the model write original dialogue:
+Once training is complete and `models/nanogpt_weights.pt` is generated, you can run the terminal-based text generation utility:
 
 ```bash
 python3 src/generate.py
@@ -81,15 +85,18 @@ python3 src/generate.py
 
 ---
 
-### 4. Interactive Web Interface Setup
-The repository now includes an interactive Streamlit web application (`src/app.py`) to run text generation visually using your trained weights.
+### 4. Interactive Hybrid Web Dashboard UI
 
-#### Key Updates Implemented:
-* **Dynamic Vocabulary Loading:** Instantiates the `CharDataset` first to dynamically pass `vocab_size` directly into the `NanoGPT` model constructor, eliminating hardcoded array dimension mismatch errors.
-* **Cross-Hardware Deployment:** Uses PyTorch's `map_location` to safely deserialize model checkpoints across differing development environments (CUDA, MPS, or CPU).
-* **Temperature-Controlled Inference:** Connects an interactive slider directly to the generation pipeline to scale prediction logits, letting you adjust text randomness on the fly.
+The application features an interactive Streamlit graphical interface (`src/app.py`) that serves as a toggleable dual-engine platform.
 
-To launch the local web server, run:
+#### Key Framework Implementations:
+
+* **Dynamic Vocabulary Loading:** Instantiates the custom `CharDataset` pipeline first to dynamically feed `vocab_size` directly into the `NanoGPT` model constructor, eliminating hardcoded array dimension mismatch errors.
+* **Cross-Hardware Weight Deserialization:** Utilizes PyTorch's `map_location` parameter to safely stream learned checkpoint matrices smoothly across differing backend target environments (CUDA, MPS, or CPU).
+* **Multi-Engine Intelligence System:** Adds a runtime router allowing users to switch between the local custom Transformer (with adjustable temperature randomness scaling) and a fast cloud connection executing the `llama-3.1-8b-instant` assistant layer.
+
+To launch the local web server dashboard, execute:
+
 ```bash
 streamlit run src/app.py
 
@@ -102,7 +109,7 @@ streamlit run src/app.py
 * **Baseline Loss:** ~4.17 - 4.60 (Equivalent to uniform random guessing across the 65-character vocabulary layout).
 * **Final Target Loss:** < 2.00 (Demonstrating structural learning and lower text entropy).
 
-### Sample Model Generation:
+### Sample Custom Transformer Output:
 
 ```text
 MORKENTMBETH:
@@ -112,5 +119,13 @@ And none in so helpar of ye heard?
 Orife, good woodst Geord were the chook you the wort
 
 ```
----
 
+### Sample Assistant Output:
+
+```text
+User Question: "Give me a simple explanation of Python Decorators"
+Response: "A decorator in Python is a design pattern that allows you to modify or extend the behavior of a function or method without permanently altering its source code. Think of it like wrapping a gift—the decorator is the wrapping paper that changes the outside appearance/behavior, while the gift inside remains identical!"
+
+```
+
+```
